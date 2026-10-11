@@ -43,7 +43,7 @@ Student's browser                          Teacher's Google account
 ## Repository structure
 
 ```
-exam-focus-logger/
+Forms-Activity-Tracker/
 ├── extension/
 │   ├── manifest.json     # Extension manifest (Manifest V3)
 │   └── background.js     # Tracking logic (service worker)
