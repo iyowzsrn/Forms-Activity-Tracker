@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "Exam Focus Logger",
+  "version": "1.0.0",
+  "description": "Logs tab/window switching while a Google Form is open. Monitoring is shown with a REC badge.",
+  "permissions": ["tabs", "storage", "identity", "identity.email"],
+  "host_permissions": [
+    "https://script.google.com/*",
+    "https://script.googleusercontent.com/*"
+  ],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_title": "Exam Focus Logger" }
+}
