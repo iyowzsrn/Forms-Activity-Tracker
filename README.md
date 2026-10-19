@@ -8,7 +8,7 @@ A consent-based exam monitoring tool for **Google Forms**. A browser extension (
 - show teachers a **live dashboard** with per-student activity and timelines
 - ask each student for **consent** before anything is recorded
 
-> **Important:** this tool is a deterrent and a review aid, not proof of misconduct. See [Limitations](#limitations) and [Privacy and consent](#privacy-and-consent) before using it with students.
+> **Important:** this tool is intended as a course requirement.
 
 ---
 
