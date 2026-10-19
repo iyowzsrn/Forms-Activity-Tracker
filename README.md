@@ -1,4 +1,4 @@
-# Exam Focus Logger
+# MonitoredExm
 
 A consent-based exam monitoring tool for **Google Forms**. A browser extension (for students) and a Google Apps Script dashboard (for teachers) work together to:
 
