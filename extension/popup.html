@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --bg:#ffffff; --text:#1f2328; --muted:#5b6470; --border:#d8dce2; --accent:#1e6b52; --accent-text:#fff; --danger:#d93025; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#1f2228; --text:#eceff3; --muted:#a3acb9; --border:#343a43; --accent:#3aa57f; --accent-text:#0b1a14; --danger:#ff6b5e; }
+  }
+  body { width: 300px; margin: 0; padding: 16px; background: var(--bg); color: var(--text);
+         font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.45; }
+  h1 { font-size: 16px; margin: 0 0 8px; }
+  p { margin: 6px 0; color: var(--muted); }
+  .status { font-weight: 600; color: var(--text); }
+  .rec { color: var(--danger); }
+  button { width: 100%; margin-top: 10px; font: inherit; font-weight: 600; padding: 9px 12px; border-radius: 8px;
+           cursor: pointer; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  button.danger { color: var(--danger); }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+  <h1>Exam Focus Logger</h1>
+
+  <div id="onBox" class="hidden">
+    <p class="status">Monitoring is enabled</p>
+    <p id="who"></p>
+    <p id="sessionLine"></p>
+    <p>It only runs while a Google Form is open.</p>
+    <button class="danger" id="withdrawBtn">Withdraw consent</button>
+    <button id="reviewBtn">Review the notice</button>
+  </div>
+
+  <div id="offBox" class="hidden">
+    <p class="status">Monitoring is off</p>
+    <p>Nothing is recorded until you read the notice and agree.</p>
+    <button class="primary" id="enableBtn">Read notice and enable</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

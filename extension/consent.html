@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exam monitoring - please read and agree</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1f2328; --muted: #5b6470; --border: #d8dce2;
+    --accent: #1e6b52; --accent-text: #ffffff; --danger: #d93025; --input: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #16181c; --card: #1f2228; --text: #eceff3; --muted: #a3acb9; --border: #343a43;
+      --accent: #3aa57f; --accent-text: #0b1a14; --danger: #ff6b5e; --input: #16181c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; line-height: 1.5;
+    padding: 24px 16px;
+  }
+  .card {
+    max-width: 640px; margin: 0 auto; background: var(--card);
+    border: 1px solid var(--border); border-radius: 14px; padding: 28px;
+  }
+  h1 { font-size: 22px; margin: 0 0 8px; }
+  h2 { font-size: 15px; margin: 20px 0 6px; }
+  p { margin: 6px 0; color: var(--muted); }
+  ul { margin: 6px 0; padding-left: 20px; color: var(--muted); }
+  li { margin: 4px 0; }
+  label { display: block; font-weight: 600; font-size: 14px; margin: 14px 0 4px; }
+  input[type="text"] {
+    width: 100%; padding: 10px 12px; font: inherit; color: var(--text);
+    background: var(--input); border: 1px solid var(--border); border-radius: 8px;
+  }
+  .agree { display: flex; gap: 10px; align-items: flex-start; margin-top: 18px; color: var(--text); }
+  .agree input { margin-top: 4px; width: 18px; height: 18px; flex: none; }
+  .buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  button {
+    font: inherit; font-weight: 600; padding: 10px 18px; border-radius: 8px; cursor: pointer;
+    border: 1px solid var(--border); background: var(--card); color: var(--text);
+  }
+  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  .error { color: var(--danger); min-height: 20px; margin-top: 10px; font-size: 14px; }
+  .hidden { display: none; }
+  .center { text-align: center; }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div id="formBox">
+    <h1>Exam monitoring: please read and agree</h1>
+    <p>This browser extension is used by your teacher during online exams. It only works while a Google Form is open in this browser. Please read what it does before you agree.</p>
+
+    <h2>What is recorded</h2>
+    <ul>
+      <li>The name and student ID you enter below, and the email of the account signed in to this browser (if any).</li>
+      <li>During an exam: when you open, switch to or close tabs and windows, the addresses (URLs) and titles of the pages involved, how long you are away from the form, and when you leave the browser.</li>
+      <li>Any attempt to open a page that is not allowed (see below).</li>
+    </ul>
+
+    <h2>What is NOT recorded</h2>
+    <ul>
+      <li>Your answers in the form, what you type, passwords, the contents of pages, screenshots or files.</li>
+      <li>Anything on other devices. For other applications, it only notes that you left the browser, not what you did there.</li>
+    </ul>
+
+    <h2>What happens during an exam</h2>
+    <ul>
+      <li>During an exam, only the form and sites approved by your teacher can be opened. Other pages (such as AI tools, PDFs or online documents) are replaced with a "blocked" page, and the attempt is recorded.</li>
+      <li>If your teacher turns on "lock until the exam ends", these restrictions also stay on after you close the form, until the exam's end time. You can see the end time by clicking the extension icon.</li>
+    </ul>
+
+    <h2>When it runs</h2>
+    <ul>
+      <li>Only when you open the Google Form of an exam your teacher has scheduled, and only between that exam's start and end times. Other Google Forms are not monitored. Nothing is recorded at other times.</li>
+    </ul>
+
+    <h2>Who can see it</h2>
+    <ul>
+      <li>Your teacher, and anyone they give access to the log spreadsheet. Records are kept according to your school's policy.</li>
+    </ul>
+
+    <h2>Your choices</h2>
+    <ul>
+      <li>Agreeing is voluntary. If you decline, nothing is recorded. Ask your teacher how your exam will be handled.</li>
+      <li>You can withdraw at any time: click the extension icon and choose "Withdraw consent". The withdrawal is recorded and monitoring stops.</li>
+    </ul>
+
+    <label for="name">Full name</label>
+    <input type="text" id="name" maxlength="100" autocomplete="name">
+
+    <label for="sid">Student ID</label>
+    <input type="text" id="sid" maxlength="50" autocomplete="off">
+
+    <label class="agree" for="agree">
+      <input type="checkbox" id="agree">
+      <span>I have read this notice and I agree to be monitored as described.</span>
+    </label>
+
+    <div class="error" id="error"></div>
+
+    <div class="buttons">
+      <button class="primary" id="agreeBtn" disabled>Agree and enable monitoring</button>
+      <button id="declineBtn">No thanks</button>
+    </div>
+  </div>
+
+  <div id="doneBox" class="hidden center">
+    <h1>Monitoring is enabled</h1>
+    <p id="doneText">Thank you. Monitoring starts when a Google Form is open.</p>
+    <div class="buttons" style="justify-content:center">
+      <button class="primary" id="closeBtn">Close this tab</button>
+    </div>
+  </div>
+
+  <div id="declinedBox" class="hidden center">
+    <h1>Monitoring stays off</h1>
+    <p>Nothing will be recorded. Please ask your teacher how your exam will be handled.</p>
+    <div class="buttons" style="justify-content:center">
+      <button class="primary" id="closeBtn2">Close this tab</button>
+    </div>
+  </div>
+
+</div>
+<script src="consent.js"></script>
+</body>
+</html>
