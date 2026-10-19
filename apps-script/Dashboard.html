@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exam Monitor</title>
+<style>
+  :root {
+    --bg: #f4f6f8; --card: #ffffff; --text: #1f2328; --muted: #5b6470; --border: #dde1e6;
+    --accent: #1e6b52; --accent-text: #ffffff; --danger: #d93025; --warn: #b26a00;
+    --green-bg: #e3f4ec; --green: #1e6b52; --amber-bg: #fdf0d5; --red-bg: #fce8e6; --gray-bg: #eceef1; --blue-bg: #e4eefc; --blue: #1a5fb4;
+    --input: #ffffff; --row-flag: #fff4f2;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161a; --card: #1d2026; --text: #eceff3; --muted: #a3acb9; --border: #323842;
+      --accent: #3aa57f; --accent-text: #0b1a14; --danger: #ff6b5e; --warn: #f0b24c;
+      --green-bg: #17352a; --green: #6fd3a8; --amber-bg: #3b2e12; --red-bg: #3d1f1c; --gray-bg: #2a2f37; --blue-bg: #17263f; --blue: #7fb0f5;
+      --input: #14161a; --row-flag: #2a1b19;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 14px; line-height: 1.45; }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px; background: var(--card); border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
+  header h1 { font-size: 18px; margin: 0; }
+  .who { color: var(--muted); font-size: 13px; }
+  nav { display: flex; gap: 4px; padding: 10px 20px 0; max-width: 1200px; margin: 0 auto; }
+  nav button { font: inherit; padding: 9px 16px; border: 1px solid transparent; border-bottom: none; background: transparent; color: var(--muted); cursor: pointer; border-radius: 8px 8px 0 0; font-weight: 600; }
+  nav button.active { background: var(--card); color: var(--text); border-color: var(--border); }
+  main { max-width: 1200px; margin: 0 auto; padding: 0 20px 40px; }
+  section { background: var(--card); border: 1px solid var(--border); border-radius: 0 10px 10px 10px; padding: 20px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
+  h3 { font-size: 15px; margin: 0; }
+  p { margin: 4px 0; }
+  .muted { color: var(--muted); }
+  .banner { margin: 12px 20px 0; max-width: 1160px; padding: 10px 14px; border-radius: 8px; background: var(--red-bg); color: var(--danger); }
+  .banner.ok { background: var(--green-bg); color: var(--green); }
+  .banner.warn { background: var(--amber-bg); color: var(--warn); }
+  .hidden { display: none !important; }
+  button.btn { font: inherit; font-weight: 600; padding: 8px 14px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--text); }
+  button.btn.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+  button.btn.danger { color: var(--danger); }
+  button.btn.small { padding: 5px 10px; font-size: 13px; }
+  .toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 14px; }
+  .card { border: 1px solid var(--border); border-radius: 10px; padding: 14px; background: var(--card); }
+  .card .row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+  .card .actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+  .badge { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+  .badge.live { background: var(--green-bg); color: var(--green); }
+  .badge.upcoming { background: var(--blue-bg); color: var(--blue); }
+  .badge.ended { background: var(--gray-bg); color: var(--muted); }
+  .chip { display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: 12px; background: var(--gray-bg); margin: 2px 4px 2px 0; }
+  .form-panel { border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin-bottom: 16px; background: var(--bg); }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-weight: 600; margin-bottom: 4px; }
+  .field .hint { color: var(--muted); font-size: 12.5px; margin-top: 3px; }
+  input[type=text], input[type=datetime-local], textarea, select {
+    width: 100%; padding: 8px 10px; font: inherit; color: var(--text); background: var(--input);
+    border: 1px solid var(--border); border-radius: 8px;
+  }
+  textarea { min-height: 70px; resize: vertical; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .two { grid-template-columns: 1fr; } }
+  .check { display: flex; gap: 8px; align-items: flex-start; }
+  .check input { margin-top: 3px; }
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 760px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); }
+  td.num, th.num { text-align: right; }
+  tbody tr.clickable { cursor: pointer; }
+  tbody tr.clickable:hover { background: var(--gray-bg); }
+  tr.flag { background: var(--row-flag); }
+  .status { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 12px; font-weight: 600; }
+  .status.onform { background: var(--green-bg); color: var(--green); }
+  .status.away { background: var(--amber-bg); color: var(--warn); }
+  .status.bad { background: var(--red-bg); color: var(--danger); }
+  .status.other { background: var(--gray-bg); color: var(--muted); }
+  .timeline { margin-top: 18px; border-top: 1px solid var(--border); padding-top: 14px; }
+  .tl-item { display: grid; grid-template-columns: 90px 190px 1fr; gap: 10px; padding: 5px 0; border-bottom: 1px dashed var(--border); }
+  .tl-item.flag { color: var(--danger); font-weight: 600; }
+  .tl-item .detail { overflow-wrap: anywhere; font-weight: 400; color: var(--muted); }
+  @media (max-width: 640px) { .tl-item { grid-template-columns: 1fr; } }
+  .summary { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; color: var(--muted); }
+  .empty { padding: 24px; text-align: center; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Exam Monitor</h1>
+  <div class="who">Signed in as <?= userEmail ?></div>
+</header>
+<div id="banner" class="banner hidden"></div>
+
+<nav>
+  <button class="tabbtn active" data-tab="exams">Exams</button>
+  <button class="tabbtn" data-tab="monitor">Live monitor</button>
+  <button class="tabbtn" data-tab="consents">Consents</button>
+</nav>
+
+<main>
+  <!-- ============ EXAMS ============ -->
+  <section id="tab-exams">
+    <div class="toolbar">
+      <h2 style="margin:0">Your exams</h2>
+      <button class="btn primary" id="newExamBtn">+ New exam</button>
+    </div>
+
+    <div id="examForm" class="form-panel hidden">
+      <h2 id="formTitle">New exam</h2>
+      <div class="field">
+        <label for="fName">Exam name</label>
+        <input type="text" id="fName" maxlength="100" placeholder="e.g. Midterm - Section A">
+      </div>
+      <div class="field">
+        <label for="fLink">Google Form link</label>
+        <input type="text" id="fLink" placeholder="https://docs.google.com/forms/d/e/.../viewform">
+        <div class="hint">In Google Forms click <b>Send</b>, then the link icon, turn <b>off</b> "Shorten URL", and paste the link here. Do not use the editor link (it ends in /edit).</div>
+      </div>
+      <div class="two">
+        <div class="field">
+          <label for="fStart">Starts</label>
+          <input type="datetime-local" id="fStart">
+        </div>
+        <div class="field">
+          <label for="fEnd">Ends</label>
+          <input type="datetime-local" id="fEnd">
+        </div>
+      </div>
+      <div class="field">
+        <label for="fAllow">Extra allowed sites (optional)</label>
+        <textarea id="fAllow" placeholder="desmos.com&#10;example.edu/reference"></textarea>
+        <div class="hint">One per line. The form and Google sign-in are always allowed. Everything else is blocked during the exam. Keep this list short.</div>
+      </div>
+      <div class="field check">
+        <input type="checkbox" id="fLock" checked>
+        <label for="fLock" style="font-weight:400;margin:0">Keep restrictions on until the exam ends, even if the student closes the form</label>
+      </div>
+      <div class="toolbar">
+        <button class="btn primary" id="saveExamBtn">Save exam</button>
+        <button class="btn" id="cancelExamBtn">Cancel</button>
+      </div>
+    </div>
+
+    <div id="examList" class="grid"></div>
+    <p class="muted" style="margin-top:14px">Students are only monitored while an exam is <b>live</b> and only on that exam's form. Times use your computer's time zone.</p>
+  </section>
+
+  <!-- ============ MONITOR ============ -->
+  <section id="tab-monitor" class="hidden">
+    <div class="toolbar">
+      <h2 style="margin:0">Live monitor</h2>
+      <select id="examSelect" style="max-width:360px"></select>
+      <button class="btn small" id="refreshBtn">Refresh</button>
+      <span class="muted" id="refreshNote"></span>
+    </div>
+    <div class="summary" id="monSummary"></div>
+    <div class="tablewrap"><table id="monTable"></table></div>
+    <div id="timeline" class="timeline hidden"></div>
+  </section>
+
+  <!-- ============ CONSENTS ============ -->
+  <section id="tab-consents" class="hidden">
+    <div class="toolbar">
+      <h2 style="margin:0">Consent records</h2>
+      <button class="btn small" id="consentRefresh">Refresh</button>
+    </div>
+    <div class="tablewrap"><table id="consentTable"></table></div>
+    <p class="muted" style="margin-top:12px">Compare this list with your class roster. Students who never agreed will not appear in the monitor.</p>
+  </section>
+</main>
+
+<script>
+(function () {
+  var exams = [];
+  var currentExamId = "";
+  var editingId = null;
+  var timer = null;
+  var currentTimelineKey = null;
+  var bannerTimer = null;
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text !== undefined && text !== null) e.textContent = String(text);
+    return e;
+  }
+  function clear(node) { while (node.firstChild) node.removeChild(node.firstChild); }
+
+  function call(fn) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return new Promise(function (resolve, reject) {
+      var runner = google.script.run
+        .withSuccessHandler(resolve)
+        .withFailureHandler(function (err) { reject(new Error(err && err.message ? err.message : String(err))); });
+      runner[fn].apply(runner, args);
+    });
+  }
+
+  function banner(msg, kind) {
+    var b = $("banner");
+    b.textContent = msg;
+    b.className = "banner" + (kind ? " " + kind : "");
+    clearTimeout(bannerTimer);
+    if (kind) bannerTimer = setTimeout(function () { b.className = "banner hidden"; }, 8000);
+  }
+  function clearBanner() { $("banner").className = "banner hidden"; }
+
+  // ---------- formatting ----------
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function fmtDateTime(ms) {
+    return new Date(ms).toLocaleString([], { dateStyle: "medium", timeStyle: "short" });
+  }
+  function fmtTime(ms) { return new Date(ms).toLocaleTimeString(); }
+  function toInput(ms) {
+    var d = new Date(ms);
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + "T" + pad(d.getHours()) + ":" + pad(d.getMinutes());
+  }
+  function fmtSecs(n) {
+    n = Math.round(n || 0);
+    if (n < 60) return n + "s";
+    return Math.floor(n / 60) + "m " + (n % 60) + "s";
+  }
+  function rel(ms) {
+    var s = Math.max(0, Math.round(ms / 1000));
+    if (s < 60) return s + "s ago";
+    if (s < 3600) return Math.floor(s / 60) + " min ago";
+    return Math.floor(s / 3600) + " h ago";
+  }
+
+  // ---------- tabs ----------
+  function showTab(name) {
+    ["exams", "monitor", "consents"].forEach(function (t) {
+      $("tab-" + t).classList.toggle("hidden", t !== name);
+    });
+    var btns = document.querySelectorAll(".tabbtn");
+    for (var i = 0; i < btns.length; i++) btns[i].classList.toggle("active", btns[i].getAttribute("data-tab") === name);
+    clearBanner();
+    stopTimer();
+    if (name === "exams") loadExams();
+    if (name === "monitor") { loadExams().then(function () { refreshMonitor(); startTimer(); }); }
+    if (name === "consents") loadConsents();
+  }
+  var tabBtns = document.querySelectorAll(".tabbtn");
+  for (var ti = 0; ti < tabBtns.length; ti++) {
+    tabBtns[ti].addEventListener("click", function () { showTab(this.getAttribute("data-tab")); });
+  }
+
+  function startTimer() {
+    stopTimer();
+    timer = setInterval(function () { if (!document.hidden) refreshMonitor(); }, 10000);
+  }
+  function stopTimer() { if (timer) { clearInterval(timer); timer = null; } }
+
+  // ---------- exams ----------
+  function loadExams() {
+    return call("api_listExams").then(function (list) {
+      exams = list || [];
+      renderExams();
+      fillExamSelect();
+    }).catch(function (e) { banner("Could not load exams: " + e.message); });
+  }
+
+  function renderExams() {
+    var box = $("examList");
+    clear(box);
+    if (!exams.length) {
+      box.appendChild(el("div", "empty", "No exams yet. Click \"+ New exam\" to schedule one."));
+      return;
+    }
+    exams.forEach(function (ex) {
+      var card = el("div", "card");
+      var row = el("div", "row");
+      row.appendChild(el("h3", "", ex.name));
+      row.appendChild(el("span", "badge " + ex.status, ex.status.charAt(0).toUpperCase() + ex.status.slice(1)));
+      card.appendChild(row);
+      card.appendChild(el("p", "muted", fmtDateTime(ex.start) + "  to  " + fmtDateTime(ex.end)));
+      card.appendChild(el("p", "muted", "Form: " + ex.formId.slice(0, 14) + "..."));
+      card.appendChild(el("p", "muted", ex.lock ? "Locked until the exam ends" : "Restrictions end when the form is closed"));
+
+      var sites = el("p", "");
+      sites.appendChild(el("span", "muted", "Extra sites: "));
+      if (!ex.allowlist.length) sites.appendChild(el("span", "muted", "none"));
+      ex.allowlist.forEach(function (s) { sites.appendChild(el("span", "chip", s)); });
+      card.appendChild(sites);
+
+      var actions = el("div", "actions");
+      var mon = el("button", "btn small primary", "Monitor");
+      mon.addEventListener("click", function () { currentExamId = ex.id; showTab("monitor"); });
+      actions.appendChild(mon);
+
+      var edit = el("button", "btn small", "Edit");
+      edit.addEventListener("click", function () { openForm(ex); });
+      actions.appendChild(edit);
+
+      if (ex.status !== "ended") {
+        var endBtn = el("button", "btn small danger", "End now");
+        endBtn.addEventListener("click", function () {
+          if (!confirm("End \"" + ex.name + "\" now? Restrictions lift for students within about a minute.")) return;
+          call("api_endExam", ex.id).then(function () { banner("Exam ended.", "ok"); loadExams(); })
+            .catch(function (e) { banner(e.message); });
+        });
+        actions.appendChild(endBtn);
+      }
+      var del = el("button", "btn small danger", "Delete");
+      del.addEventListener("click", function () {
+        if (!confirm("Delete \"" + ex.name + "\"? Its logged events stay in the Sheet, but it will no longer appear here.")) return;
+        call("api_deleteExam", ex.id).then(function () { loadExams(); }).catch(function (e) { banner(e.message); });
+      });
+      actions.appendChild(del);
+      card.appendChild(actions);
+      box.appendChild(card);
+    });
+  }
+
+  function openForm(ex) {
+    editingId = ex ? ex.id : null;
+    $("formTitle").textContent = ex ? "Edit exam" : "New exam";
+    if (ex) {
+      $("fName").value = ex.name;
+      $("fLink").value = "https://docs.google.com/forms/d/e/" + ex.formId + "/viewform";
+      $("fStart").value = toInput(ex.start);
+      $("fEnd").value = toInput(ex.end);
+      $("fAllow").value = ex.allowlist.join("\n");
+      $("fLock").checked = !!ex.lock;
+    } else {
+      var now = Date.now();
+      $("fName").value = "";
+      $("fLink").value = "";
+      $("fStart").value = toInput(now);
+      $("fEnd").value = toInput(now + 60 * 60 * 1000);
+      $("fAllow").value = "";
+      $("fLock").checked = true;
+    }
+    $("examForm").classList.remove("hidden");
+    $("fName").focus();
+  }
+  function closeForm() { $("examForm").classList.add("hidden"); editingId = null; }
+
+  $("newExamBtn").addEventListener("click", function () { openForm(null); });
+  $("cancelExamBtn").addEventListener("click", closeForm);
+  $("saveExamBtn").addEventListener("click", function () {
+    var startMs = new Date($("fStart").value).getTime();
+    var endMs = new Date($("fEnd").value).getTime();
+    var payload = {
+      id: editingId,
+      name: $("fName").value,
+      link: $("fLink").value,
+      startMs: startMs,
+      endMs: endMs,
+      allowlistText: $("fAllow").value,
+      lock: $("fLock").checked
+    };
+    var btn = $("saveExamBtn");
+    btn.disabled = true;
+    call("api_saveExam", payload).then(function (res) {
+      btn.disabled = false;
+      closeForm();
+      if (res.warnings && res.warnings.length) banner("Saved. Note: " + res.warnings.join(" "), "warn");
+      else banner("Exam saved.", "ok");
+      loadExams();
+    }).catch(function (e) { btn.disabled = false; banner(e.message); });
+  });
+
+  // ---------- monitor ----------
+  function fillExamSelect() {
+    var sel = $("examSelect");
+    var keep = currentExamId;
+    clear(sel);
+    if (!exams.length) { sel.appendChild(new Option("No exams yet", "")); currentExamId = ""; return; }
+    var order = { live: 0, upcoming: 1, ended: 2 };
+    var sorted = exams.slice().sort(function (a, b) { return order[a.status] - order[b.status] || b.start - a.start; });
+    sorted.forEach(function (ex) {
+      sel.appendChild(new Option(ex.name + " (" + ex.status + ")", ex.id));
+    });
+    var exists = sorted.some(function (e) { return e.id === keep; });
+    currentExamId = exists ? keep : sorted[0].id;
+    sel.value = currentExamId;
+  }
+  $("examSelect").addEventListener("change", function () {
+    currentExamId = this.value;
+    currentTimelineKey = null;
+    $("timeline").classList.add("hidden");
+    refreshMonitor();
+  });
+  $("refreshBtn").addEventListener("click", function () { refreshMonitor(); });
+
+  function statusClass(s) {
+    if (s === "On form") return "onform";
+    if (s === "Away") return "away";
+    if (s === "Withdrew consent") return "bad";
+    return "other";
+  }
+
+  function refreshMonitor() {
+    var table = $("monTable");
+    if (!currentExamId) {
+      clear(table); clear($("monSummary"));
+      return Promise.resolve();
+    }
+    return call("api_getMonitor", currentExamId).then(function (data) {
+      $("refreshNote").textContent = "Updated " + new Date().toLocaleTimeString();
+      renderMonitor(data);
+      if (currentTimelineKey) loadTimeline(currentTimelineKey, null, true);
+    }).catch(function (e) { banner("Could not load the monitor: " + e.message); });
+  }
+
+  function renderMonitor(data) {
+    var sum = $("monSummary");
+    clear(sum);
+    var total = data.students.length;
+    var flagged = data.students.filter(function (s) { return s.blocked + s.ai + s.pdf > 0; }).length;
+    var away = data.students.filter(function (s) { return s.status === "Away"; }).length;
+    sum.appendChild(el("span", "", data.exam.name + " - " + data.exam.status));
+    sum.appendChild(el("span", "", total + " student" + (total === 1 ? "" : "s") + " started"));
+    sum.appendChild(el("span", "", away + " away right now"));
+    sum.appendChild(el("span", "", flagged + " with blocked or flagged activity"));
+
+    var table = $("monTable");
+    clear(table);
+    var thead = el("thead");
+    var hr = el("tr");
+    [["Student", ""], ["Status", ""], ["Last activity", ""], ["Switches", "num"], ["Blocked", "num"], ["AI", "num"], ["PDF", "num"], ["Left browser", "num"], ["Time away", "num"]]
+      .forEach(function (c) { hr.appendChild(el("th", c[1], c[0])); });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+
+    var tbody = el("tbody");
+    if (!data.students.length) {
+      var er = el("tr");
+      var ec = el("td", "empty", "No activity yet for this exam.");
+      ec.colSpan = 9;
+      er.appendChild(ec);
+      tbody.appendChild(er);
+    }
+    data.students.forEach(function (s) {
+      var tr = el("tr", "clickable" + (s.blocked + s.ai + s.pdf > 0 ? " flag" : ""));
+      var nameCell = el("td");
+      nameCell.appendChild(el("div", "", s.name || "(no name)"));
+      nameCell.appendChild(el("div", "muted", s.studentId || ""));
+      tr.appendChild(nameCell);
+
+      var stCell = el("td");
+      stCell.appendChild(el("span", "status " + statusClass(s.status), s.status || "-"));
+      if (s.statusTs) stCell.appendChild(el("span", "muted", "  " + rel(data.serverNow - s.statusTs)));
+      tr.appendChild(stCell);
+
+      tr.appendChild(el("td", "", s.lastTs ? rel(data.serverNow - s.lastTs) : "-"));
+      tr.appendChild(el("td", "num", s.switches));
+      tr.appendChild(el("td", "num", s.blocked));
+      tr.appendChild(el("td", "num", s.ai));
+      tr.appendChild(el("td", "num", s.pdf));
+      tr.appendChild(el("td", "num", s.leftBrowser));
+      tr.appendChild(el("td", "num", fmtSecs(s.awaySec)));
+      tr.addEventListener("click", function () { loadTimeline(s.key, s.name, false); });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+  }
+
+  function loadTimeline(key, name, silent) {
+    currentTimelineKey = key;
+    return call("api_getTimeline", currentExamId, key).then(function (events) {
+      var box = $("timeline");
+      clear(box);
+      box.classList.remove("hidden");
+      var head = el("div", "toolbar");
+      head.appendChild(el("h2", "", "Timeline" + (name ? " - " + name : "")));
+      var close = el("button", "btn small", "Close");
+      close.addEventListener("click", function () { currentTimelineKey = null; box.classList.add("hidden"); });
+      head.appendChild(close);
+      box.appendChild(head);
+      if (!events.length) { box.appendChild(el("div", "empty", "No events.")); return; }
+      events.forEach(function (ev) {
+        var flagged = ev.code === "BLOCKED_NAVIGATION" || ev.category === "AI_SITE" || ev.category === "PDF";
+        var item = el("div", "tl-item" + (flagged ? " flag" : ""));
+        item.appendChild(el("div", "", fmtTime(ev.ts)));
+        item.appendChild(el("div", "", ev.label));
+        var detail = [];
+        if (ev.site) detail.push(ev.site);
+        if (ev.title) detail.push(ev.title);
+        if (ev.away) detail.push("away " + fmtSecs(ev.away));
+        if (ev.note) detail.push(ev.note);
+        item.appendChild(el("div", "detail", detail.join("  -  ")));
+        box.appendChild(item);
+      });
+      if (!silent) box.scrollIntoView({ behavior: "smooth", block: "start" });
+    }).catch(function (e) { banner("Could not load the timeline: " + e.message); });
+  }
+
+  // ---------- consents ----------
+  function loadConsents() {
+    call("api_getConsents").then(function (list) {
+      var table = $("consentTable");
+      clear(table);
+      var thead = el("thead");
+      var hr = el("tr");
+      ["Name", "Student ID", "Email", "Status", "When"].forEach(function (c) { hr.appendChild(el("th", "", c)); });
+      thead.appendChild(hr);
+      table.appendChild(thead);
+      var tbody = el("tbody");
+      if (!list.length) {
+        var er = el("tr");
+        var ec = el("td", "empty", "No consent records yet.");
+        ec.colSpan = 5;
+        er.appendChild(ec);
+        tbody.appendChild(er);
+      }
+      list.forEach(function (c) {
+        var tr = el("tr");
+        tr.appendChild(el("td", "", c.name));
+        tr.appendChild(el("td", "", c.studentId));
+        tr.appendChild(el("td", "", c.email));
+        var st = el("td");
+        st.appendChild(el("span", "status " + (c.action === "Agreed" ? "onform" : "bad"), c.action));
+        tr.appendChild(st);
+        tr.appendChild(el("td", "", c.when));
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+    }).catch(function (e) { banner("Could not load consents: " + e.message); });
+  }
+  $("consentRefresh").addEventListener("click", loadConsents);
+
+  // ---------- start ----------
+  loadExams();
+})();
+</script>
+</body>
+</html>
