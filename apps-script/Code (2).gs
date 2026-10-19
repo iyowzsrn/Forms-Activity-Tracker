@@ -4,8 +4,8 @@
 //   * doGet  : serves the teacher dashboard (Dashboard.html) to approved teachers only
 // ============================================================================
 
-const SECRET = "change-me";                    // <-- the SAME secret as in background.js
-const TEACHER_EMAILS = ["teacher@example.com"]; // <-- your Google account(s) allowed to open the dashboard
+const SECRET = "change-me";                    // <-- the SAME secret (exam-logs-admin) as in background.js
+const TEACHER_EMAILS = ["teacher@example.com"]; // <-- your Google account(s) allowed to open the dashboard (any gmail)
 const TZ = "Asia/Manila";
 
 const SHEET_NAME = "Exam Log";       // readable log
